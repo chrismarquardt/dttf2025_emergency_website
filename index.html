@@ -14,6 +14,26 @@
         <img src="header_image.jpeg" alt="Chris Marquardt Photography" class="header-image">
     </header>
 
+    <div class="booking-container">
+        <button id="booking-toggle" class="booking-toggle">Buchen / Book</button>
+        <section id="booking-info" class="booking-info collapsed">
+            <h2>Workshop buchen / Book workshop</h2>
+            <div class="booking-content">
+                <p>Während die Hauptwebseite überarbeitet wird, 
+                    soll der Buchungsprozess trotzdem so einfach wie möglich ablaufen. 
+                    Buchen Sie die Workshops bitte direkt per E-Mail an:</p>
+                <p class="email"><a href="mailto:chris@chrismarquardt.com?subject=Workshop-Anfrage"><strong>chris@chrismarquardt.com</strong></a></p>
+                <p>Folgende Informationen sind wichtig:</p>
+                <ul>
+                    <li>Name des gewünschten Workshops</li>
+                    <li>Vollständige Kontaktdaten</li>
+                    <li>Eventuelle Fragen oder spezielle Anforderungen</li>
+                </ul>
+                <p>Wir freuen uns auf Ihre Anfrage!</p>
+            </div>
+        </section>
+    </div>
+
     <main>
         <section class="workshops">
             <div class="workshop-grid">
@@ -157,5 +177,21 @@
     <footer>
         <p>&copy; 2025 Chris Marquardt. Alle Rechte vorbehalten.</p>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const bookingToggle = document.getElementById('booking-toggle');
+            const bookingInfo = document.getElementById('booking-info');
+            
+            bookingToggle.addEventListener('click', function() {
+                bookingInfo.classList.toggle('collapsed');
+                if (bookingInfo.classList.contains('collapsed')) {
+                    bookingToggle.textContent = 'Buchen / Book';
+                } else {
+                    bookingToggle.textContent = 'Buchungsinfo schließen';
+                }
+            });
+        });
+    </script>
 </body>
 </html> 
