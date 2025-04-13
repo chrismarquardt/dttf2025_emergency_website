@@ -185,7 +185,7 @@
                 <h3 id="pdf-title">Workshop Details</h3>
                 <div class="pdf-buttons">
                     <button id="pdf-book" class="pdf-book-btn">Buchen / Book</button>
-                    <button id="pdf-close" class="pdf-close-btn">Schließen / Close</button>
+                    <button id="pdf-close" class="pdf-close-btn">×</button>
                 </div>
             </div>
             <iframe id="pdf-iframe" class="pdf-content"></iframe>
@@ -218,10 +218,13 @@
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
                     const pdfPath = this.getAttribute('href');
-                    const workshopTitle = this.closest('.workshop-card').querySelector('h3').textContent;
+                    const workshopCard = this.closest('.workshop-card');
+                    const workshopTitle = workshopCard.querySelector('h3').textContent;
+                    const workshopDate = workshopCard.querySelector('.date').textContent;
+                    const workshopLocation = workshopCard.querySelector('.location').textContent;
                     
                     pdfIframe.setAttribute('src', pdfPath);
-                    pdfTitle.textContent = workshopTitle + ' - Details';
+                    pdfTitle.textContent = `${workshopTitle} - Details [${workshopDate}, ${workshopLocation}]`;
                     pdfModal.classList.add('active');
                     document.body.style.overflow = 'hidden'; // Prevent scrolling
                 });
@@ -240,7 +243,9 @@
             const pdfBook = document.getElementById('pdf-book');
             pdfBook.addEventListener('click', function() {
                 // Get the workshop title from the PDF title header
-                const workshopTitle = pdfTitle.textContent.replace(' - Details', '');
+                const titleText = pdfTitle.textContent;
+                // Extract just the workshop title without the "- Details [date, location]" part
+                const workshopTitle = titleText.split(' - Details')[0];
                 const encodedTitle = encodeURIComponent(workshopTitle);
                 
                 // Create bilingual email body with contact template
