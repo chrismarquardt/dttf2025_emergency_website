@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Chris Marquardt - Foto-Workshops & Fotoreisen</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -188,7 +188,7 @@
                     <button id="pdf-close" class="pdf-close-btn">×</button>
                 </div>
             </div>
-            <iframe id="pdf-iframe" class="pdf-content" scrolling="yes" frameborder="0" allowfullscreen="true" allow="fullscreen" sandbox="allow-same-origin allow-scripts allow-forms allow-popups"></iframe>
+            <iframe id="pdf-iframe" class="pdf-content" scrolling="yes" frameborder="0"></iframe>
         </div>
     </div>
 
@@ -213,7 +213,7 @@
             const pdfClose = document.getElementById('pdf-close');
             const detailButtons = document.querySelectorAll('.details-button');
 
-            // Open PDF in modal
+            // Open PDF handler
             detailButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -223,59 +223,61 @@
                     const workshopDate = workshopCard.querySelector('.date').textContent;
                     const workshopLocation = workshopCard.querySelector('.location').textContent;
                     
-                    // Check if mobile device for better PDF handling
                     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                    
-                    // Show loading indicator
-                    pdfModal.classList.add('active');
-                    pdfTitle.textContent = `Loading...`;
-                    document.body.style.overflow = 'hidden';
-                    document.body.style.position = 'fixed';
-                    document.body.style.width = '100%';
-                    document.body.style.height = '100%';
-                    
-                    // Set iframe source after a small delay to ensure modal is visible
-                    setTimeout(() => {
-                        pdfIframe.setAttribute('src', pdfPath);
-                        pdfTitle.textContent = `${workshopTitle} - Details [${workshopDate}, ${workshopLocation}]`;
+
+                    if (isMobile) {
+                        // On mobile, open the PDF in a new tab for native handling
+                        window.open(pdfPath, '_blank');
+                    } else {
+                        // On desktop, open in the modal
+                        const currentScrollY = window.scrollY;
                         
-                        // For mobile devices, add additional handling
-                        if (isMobile) {
-                            // Add event listeners to capture and prevent touch events from propagating
-                            pdfIframe.addEventListener('touchstart', function(e) {
-                                e.stopPropagation();
-                            }, { passive: true });
-                            
-                            pdfIframe.addEventListener('load', function() {
-                                // When PDF is loaded, focus the iframe
-                                pdfIframe.focus();
-                                
-                                // Add a slight delay to ensure rendering is complete
-                                setTimeout(() => {
-                                    // Try scrolling the iframe slightly to engage the scrolling mechanism
-                                    pdfIframe.contentWindow.scrollBy(0, 1);
-                                }, 500);
-                            });
-                        }
-                    }, 50);
+                        // Show loading indicator
+                        pdfModal.classList.add('active');
+                        pdfTitle.textContent = `Loading...`;
+                        
+                        // Prevent body scrolling (robust method)
+                        document.body.style.position = 'fixed';
+                        document.body.style.overflow = 'hidden';
+                        document.body.style.width = '100%';
+                        document.body.style.height = '100%';
+                        document.body.style.top = `-${currentScrollY}px`;
+                        document.documentElement.style.height = '100%';
+                        document.documentElement.style.overflow = 'hidden';
+
+                        // Set iframe source
+                        setTimeout(() => {
+                            // Update with title and info
+                            pdfTitle.textContent = `${workshopTitle} - Details [${workshopDate}, ${workshopLocation}]`;
+                            pdfIframe.setAttribute('src', pdfPath);
+                        }, 100); // Small delay for modal transition
+                    }
                 });
             });
 
-            // Close PDF modal
+            // Close PDF modal (only relevant for desktop)
             pdfClose.addEventListener('click', function() {
+                // Close the modal
                 pdfModal.classList.remove('active');
-                document.body.style.overflow = '';
+                
+                // Restore body scrolling (robust method)
+                const scrollY = document.body.style.top;
                 document.body.style.position = '';
+                document.body.style.overflow = '';
                 document.body.style.width = '';
                 document.body.style.height = '';
+                document.body.style.top = '';
+                document.documentElement.style.height = '';
+                document.documentElement.style.overflow = '';
+                window.scrollTo(0, parseInt(scrollY || '0') * -1);
                 
-                // Clear iframe source after animation completes
+                // Clear iframe source
                 setTimeout(() => {
                     pdfIframe.setAttribute('src', '');
-                }, 300);
+                }, 300); // Delay matches modal transition
             });
 
-            // Book button in PDF modal
+            // Book button in PDF modal (only relevant for desktop)
             const pdfBook = document.getElementById('pdf-book');
             pdfBook.addEventListener('click', function() {
                 // Get the workshop title from the PDF title header
@@ -286,8 +288,7 @@
                 
                 // Create bilingual email body with contact template
                 const emailBody = `
-// DEUTSCH (Während wir die Website überarbeiten, bucht die Workshops bitte direkt per E-Mail)
-
+// DEUTSCH
 Ich möchte mich für den Workshop "${workshopTitle}" anmelden.
 
 Meine Kontaktdaten:
@@ -298,8 +299,7 @@ Weitere Anmerkungen:
 
 ---------------------------
 
-// ENGLISH (While we update the website, please book the workshops directly per email)
-
+// ENGLISH
 I would like to register for the workshop "${workshopTitle}".
 
 My contact information:
@@ -314,18 +314,14 @@ Vielen Dank, wir melden uns mit den nächsten Schritten. / Thanks, we'll get in 
 `;
                 
                 // Create and open mailto link with title parameter
-                const mailtoUrl = `mailto:chris@chrismarquardt.com?subject=Workshop Buchung: ${encodedTitle}&body=${encodeURIComponent(emailBody)}`;
+                const mailtoUrl = `mailto:chris@chrismarquardt.com?subject=Workshop Buchung/Booking: ${encodedTitle}&body=${encodeURIComponent(emailBody)}`;
                 window.location.href = mailtoUrl;
                 
-                // Close the PDF modal
-                pdfModal.classList.remove('active');
-                setTimeout(() => {
-                    pdfIframe.setAttribute('src', '');
-                }, 300);
-                document.body.style.overflow = 'auto'; // Restore scrolling
+                // Close the PDF modal (trigger the close button's logic)
+                pdfClose.click(); 
             });
 
-            // Close modal when clicking outside the content
+            // Close modal when clicking outside the content (only relevant for desktop)
             pdfModal.addEventListener('click', function(e) {
                 if (e.target === pdfModal) {
                     pdfClose.click();

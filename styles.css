@@ -297,15 +297,10 @@ footer {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.8);
     z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    touch-action: none;
+    overflow: hidden; /* Prevent modal from scrolling */
 }
 
 .pdf-modal.active {
@@ -314,19 +309,15 @@ footer {
 }
 
 .pdf-container {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
     width: 100%;
     height: 100%;
-    background-color: white;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
+    background-color: white;
+    overflow: hidden; /* Prevent container overflow */
 }
 
 .pdf-header {
@@ -337,6 +328,10 @@ footer {
     background-color: #f5f5f5;
     border-bottom: 1px solid #ddd;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+    height: 50px;
+    min-height: 50px;
+    flex-shrink: 0; /* Prevent header from shrinking */
 }
 
 .pdf-header h3 {
@@ -397,18 +392,16 @@ footer {
 .pdf-content {
     flex: 1;
     width: 100%;
-    height: calc(100% - 50px);
+    height: 100%;
     border: none;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
-    position: relative;
-    overscroll-behavior: contain;
 }
 
 /* Improved mobile adjustments */
 @media (max-width: 768px) {
     .pdf-content {
-        overflow-y: scroll;
+        overflow-y: scroll; /* Ensure vertical scroll is enabled */
         -webkit-overflow-scrolling: touch;
         -webkit-user-select: none;
         user-select: none;
@@ -421,18 +414,13 @@ footer {
         backface-visibility: hidden;
     }
     
-    /* Prevent unwanted zooming */
-    .pdf-modal, .pdf-container, .pdf-content {
+    /* Let iframe handle touch pan */
+    .pdf-content {
         touch-action: pan-y;
-    }
-    
-    /* Fixed height header for mobile */
-    .pdf-header {
-        height: 50px;
-        min-height: 50px;
     }
 }
 
+/* Mobile header sizing adjustments remain the same */
 @media (max-width: 480px) {
     .pdf-header {
         padding: 0.6rem 0.75rem;
