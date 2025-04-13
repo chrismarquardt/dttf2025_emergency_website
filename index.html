@@ -21,7 +21,7 @@
             <div class="booking-content">
                 <p>Während die Hauptwebseite überarbeitet wird, 
                     soll der Buchungsprozess trotzdem so einfach wie möglich ablaufen. 
-                    Buchen Sie die Workshops bitte direkt per E-Mail an:</p>
+                    Bucht die Workshops bitte solange direkt per E-Mail an:</p>
                 <p class="email"><a href="mailto:chris@chrismarquardt.com?subject=Workshop-Anfrage"><strong>chris@chrismarquardt.com</strong></a></p>
                 <p>Folgende Informationen sind wichtig:</p>
                 <ul>
@@ -29,7 +29,7 @@
                     <li>Vollständige Kontaktdaten</li>
                     <li>Eventuelle Fragen oder spezielle Anforderungen</li>
                 </ul>
-                <p>Wir freuen uns auf Ihre Anfrage!</p>
+                <p>Wir freuen uns auf Deine Anfrage!</p>
             </div>
         </section>
     </div>
@@ -178,6 +178,20 @@
         <p>&copy; 2025 Chris Marquardt. Alle Rechte vorbehalten.</p>
     </footer>
 
+    <!-- PDF Viewer Modal -->
+    <div id="pdf-modal" class="pdf-modal">
+        <div class="pdf-container">
+            <div class="pdf-header">
+                <h3 id="pdf-title">Workshop Details</h3>
+                <div class="pdf-buttons">
+                    <button id="pdf-book" class="pdf-book-btn">Buchen / Book</button>
+                    <button id="pdf-close" class="pdf-close-btn">Schließen / Close</button>
+                </div>
+            </div>
+            <iframe id="pdf-iframe" class="pdf-content"></iframe>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const bookingToggle = document.getElementById('booking-toggle');
@@ -189,6 +203,91 @@
                     bookingToggle.textContent = 'Buchen / Book';
                 } else {
                     bookingToggle.textContent = 'Buchungsinfo schließen';
+                }
+            });
+
+            // PDF Modal functionality
+            const pdfModal = document.getElementById('pdf-modal');
+            const pdfIframe = document.getElementById('pdf-iframe');
+            const pdfTitle = document.getElementById('pdf-title');
+            const pdfClose = document.getElementById('pdf-close');
+            const detailButtons = document.querySelectorAll('.details-button');
+
+            // Open PDF in modal
+            detailButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const pdfPath = this.getAttribute('href');
+                    const workshopTitle = this.closest('.workshop-card').querySelector('h3').textContent;
+                    
+                    pdfIframe.setAttribute('src', pdfPath);
+                    pdfTitle.textContent = workshopTitle + ' - Details';
+                    pdfModal.classList.add('active');
+                    document.body.style.overflow = 'hidden'; // Prevent scrolling
+                });
+            });
+
+            // Close PDF modal
+            pdfClose.addEventListener('click', function() {
+                pdfModal.classList.remove('active');
+                setTimeout(() => {
+                    pdfIframe.setAttribute('src', '');
+                }, 300);
+                document.body.style.overflow = 'auto'; // Restore scrolling
+            });
+
+            // Book button in PDF modal
+            const pdfBook = document.getElementById('pdf-book');
+            pdfBook.addEventListener('click', function() {
+                // Get the workshop title from the PDF title header
+                const workshopTitle = pdfTitle.textContent.replace(' - Details', '');
+                const encodedTitle = encodeURIComponent(workshopTitle);
+                
+                // Create bilingual email body with contact template
+                const emailBody = `
+// DEUTSCH (Während wir die Website überarbeiten, bucht die Workshops bitte direkt per E-Mail)
+
+Ich möchte mich für den Workshop "${workshopTitle}" anmelden.
+
+Meine Kontaktdaten:
+Name: 
+Telefon: 
+Adresse: 
+Weitere Anmerkungen:
+
+---------------------------
+
+// ENGLISH (While we update the website, please book the workshops directly per email)
+
+I would like to register for the workshop "${workshopTitle}".
+
+My contact information:
+Name: 
+Phone: 
+Address: 
+Additional notes:
+
+---------------------------
+
+Vielen Dank, wir melden uns mit den nächsten Schritten. / Thanks, we'll get in touch with the next steps.
+`;
+                
+                // Create and open mailto link with title parameter
+                const mailtoUrl = `mailto:chris@chrismarquardt.com?subject=Workshop Buchung: ${encodedTitle}&body=${encodeURIComponent(emailBody)}`;
+                window.location.href = mailtoUrl;
+                
+                // Close the PDF modal
+                pdfModal.classList.remove('active');
+                setTimeout(() => {
+                    pdfIframe.setAttribute('src', '');
+                }, 300);
+                document.body.style.overflow = 'auto'; // Restore scrolling
+            });
+
+            // Close modal when clicking outside the content
+            pdfModal.addEventListener('click', function(e) {
+                if (e.target === pdfModal) {
+                    pdfClose.click();
                 }
             });
         });
