@@ -303,6 +303,7 @@ footer {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    -webkit-overflow-scrolling: touch;
 }
 
 .pdf-modal.active {
@@ -319,6 +320,7 @@ footer {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 .pdf-header {
@@ -391,6 +393,28 @@ footer {
     width: 100%;
     height: 100%;
     border: none;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    position: relative;
+}
+
+/* Add specific mobile adjustments */
+@media (max-width: 768px) {
+    .pdf-content {
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Force hardware acceleration for smoother scrolling */
+    .pdf-container {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+    }
+    
+    /* Prevent unwanted zooming */
+    .pdf-modal, .pdf-container, .pdf-content {
+        touch-action: pan-y;
+    }
 }
 
 @media (max-width: 480px) {

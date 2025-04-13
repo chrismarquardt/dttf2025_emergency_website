@@ -188,7 +188,7 @@
                     <button id="pdf-close" class="pdf-close-btn">×</button>
                 </div>
             </div>
-            <iframe id="pdf-iframe" class="pdf-content"></iframe>
+            <iframe id="pdf-iframe" class="pdf-content" scrolling="yes" frameborder="0" allowfullscreen="true"></iframe>
         </div>
     </div>
 
@@ -223,10 +223,21 @@
                     const workshopDate = workshopCard.querySelector('.date').textContent;
                     const workshopLocation = workshopCard.querySelector('.location').textContent;
                     
+                    // Check if mobile device for better PDF handling
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                    
                     pdfIframe.setAttribute('src', pdfPath);
                     pdfTitle.textContent = `${workshopTitle} - Details [${workshopDate}, ${workshopLocation}]`;
                     pdfModal.classList.add('active');
                     document.body.style.overflow = 'hidden'; // Prevent scrolling
+                    
+                    // Apply specific handling for mobile
+                    if (isMobile) {
+                        // Add a small delay to ensure proper rendering on mobile
+                        setTimeout(() => {
+                            pdfIframe.focus();
+                        }, 300);
+                    }
                 });
             });
 
